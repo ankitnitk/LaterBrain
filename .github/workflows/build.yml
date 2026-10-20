@@ -1,0 +1,97 @@
+name: Build Later Brain
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write   # needed for softprops/action-gh-release to create/update releases
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper --gradle-version 8.10.2
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > $RUNNER_TEMP/laterbrain-release.jks
+
+      - name: Build signed AAB (Play Store) + APK (sideload)
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/laterbrain-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease assembleRelease --no-daemon
+
+      - name: Read version
+        id: ver
+        run: |
+          v=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)
+          echo "name=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Collect outputs
+        run: |
+          mkdir -p out
+          cp app/build/outputs/bundle/release/app-release.aab "out/LaterBrain-v${{ steps.ver.outputs.name }}.aab"
+          cp app/build/outputs/apk/release/app-release.apk "out/LaterBrain-v${{ steps.ver.outputs.name }}.apk"
+
+      - name: Upload AAB artifact (Play Store upload)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LaterBrain-AAB
+          path: "out/LaterBrain-v${{ steps.ver.outputs.name }}.aab"
+          retention-days: 30
+
+      - name: Upload APK artifact (sideload)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LaterBrain-APK
+          path: "out/LaterBrain-v${{ steps.ver.outputs.name }}.apk"
+          retention-days: 30
+
+      - name: Publish/refresh "Latest" GitHub Release with APK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Later Brain v${{ steps.ver.outputs.name }}
+          body: |
+            Automatic build from `main` branch.
+            Commit: ${{ github.sha }}
+
+            Download `LaterBrain-v${{ steps.ver.outputs.name }}.apk` below and install on your phone (allow Unknown Sources).
+            The `.aab` file in CI artifacts is for Play Store submission.
+          files: "out/LaterBrain-v${{ steps.ver.outputs.name }}.apk"
+          prerelease: false
+          make_latest: "true"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
