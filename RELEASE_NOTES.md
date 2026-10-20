@@ -21,3 +21,7 @@ The first building block: you can save things and see them in one calm list.
 **Privacy**
 - The app has no internet permission at all, so your saved items physically can't leave your phone.
 - Saved items are left out of Google cloud backup.
+
+**Behind the scenes**
+- Privacy policy page published at https://ankitnitk.github.io/LaterBrain/privacy-policy.html
+- Play Store listing kit added: descriptions, store icon, feature graphic and answers for every Play Console form.

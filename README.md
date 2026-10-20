@@ -98,6 +98,12 @@ Release builds are signed with a dedicated Later Brain keystore, separate from a
 
 > ⚠️ If the keystore is lost, the app can never be updated on the Play Store. Keep a backup somewhere safe.
 
+### Play Store
+
+Everything for the Play Store listing (texts, form answers, closed-test steps, screenshot list) is in [store/PLAY_STORE_LISTING.md](store/PLAY_STORE_LISTING.md). The store icon and feature graphic are in `store/graphics/`; to redraw them, run `python store/make_graphics.py`.
+
+The privacy policy is published from the `docs/` folder at https://ankitnitk.github.io/LaterBrain/privacy-policy.html
+
 ### Releasing a new version
 
 ```powershell
