@@ -25,3 +25,4 @@ The first building block: you can save things and see them in one calm list.
 **Behind the scenes**
 - Privacy policy page published at https://ankitnitk.github.io/LaterBrain/privacy-policy.html
 - Play Store listing kit added: descriptions, store icon, feature graphic and answers for every Play Console form.
+- Built for Android 16 (API level 36), as Google Play now requires for new apps.

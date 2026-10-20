@@ -68,7 +68,7 @@ See [RELEASE_NOTES.md](RELEASE_NOTES.md) for what changed in each version.
 
 **Built with:** Kotlin, Jetpack Compose (Material 3), Room (the on-phone database), Navigation Compose. No dependency-injection library: a small `AppContainer` class sets things up.
 
-**Requirements:** Android 8.0 (API 26) or newer. Targets Android 15 (API 35).
+**Requirements:** Android 8.0 (API 26) or newer. Targets Android 16 (API 36).
 
 ### Project layout
 
@@ -90,7 +90,7 @@ There's no need to install Android Studio to get an APK. Every push to `main` is
 2. builds a signed **APK** (to install on your phone) and **AAB** (for the Play Store),
 3. puts the latest APK on the [Releases page](../../releases/tag/latest).
 
-To build locally you need Android Studio (or the Android SDK) and JDK 17. Then run `gradle wrapper --gradle-version 8.10.2` once, followed by `./gradlew assembleDebug`.
+To build locally you need Android Studio (or the Android SDK) and JDK 17. Then run `gradle wrapper --gradle-version 8.11.1` once, followed by `./gradlew assembleDebug`.
 
 ### Signing
 
